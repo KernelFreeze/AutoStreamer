@@ -34,7 +34,7 @@ solution "GOTH"
         kind "ConsoleApp"
         language "C++"
 
-        links { "rtmp", "flv", "stdc++fs" }
+        links { "rtmp", "flv", "stdc++fs", "stdc++" }
 
         buildoptions_cpp {
             "-std=c++17",
