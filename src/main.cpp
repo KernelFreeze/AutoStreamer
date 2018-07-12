@@ -92,6 +92,7 @@ int main(int argc, char const *argv[]) {
 
         if (!flvin) {
             LOG_CRIT << "Unable to open " << input_file;
+            RTMP_Free(rtmp);
             return 1;
         }
 
@@ -99,18 +100,19 @@ int main(int argc, char const *argv[]) {
         int res = flv_read_header(flvin, &header);
         if (res == FLV_ERROR_NO_FLV || res == FLV_ERROR_EOF) {
             LOG_CRIT << "Input file is not an FLV video";
+            RTMP_Free(rtmp);
             flv_close(flvin);
             return 1;
         }
 
-        char buffer[BUFFER_SIZE];
+        auto buffer = new char[BUFFER_SIZE];
 
         // Decode FLV data
 
         flv_tag tag;
         while (flv_read_tag(flvin, &tag) != FLV_ERROR_EOF) {
             // copy tag header
-            flv_copy_tag(buffer, &tag, BUFFER_SIZE);
+            flv_copy_tag(buffer, &tag, FLV_TAG_SIZE);
 
             // copy tag body
             size_t data_size =
@@ -132,6 +134,7 @@ int main(int argc, char const *argv[]) {
         }
 
         flv_close(flvin);
+        delete[] buffer;
     }
 
     RTMP_Free(rtmp);

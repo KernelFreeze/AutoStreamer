@@ -52,7 +52,7 @@ solution "GOTH"
         }
 
         configuration "linux"
-            links { "pthread" }
+            links { "pthread", "atomic" }
 
         configuration "Debug"
             defines { "DEBUG" }
