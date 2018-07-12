@@ -18,10 +18,10 @@ sudo update-alternatives --config clang++
 # Build
 ```bash
 tools/linux/genie gmake
-make
+make config=release
 ```
 
 # Run
 ```bash
-bin/debug/streamer
+bin/release/streamer
 ```
