@@ -102,13 +102,6 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
-    fd_set sockset;
-    RTMPPacket rtmpPacket;
-    struct timeval timeout = {0, 0};
-
-    FD_ZERO(&sockset);
-    FD_SET(RTMP_Socket(rtmp), &sockset);
-
     auto firstRun = true;
 
     while (firstRun || reader.GetBoolean("stream", "forever", false)) {
@@ -163,29 +156,12 @@ int main(int argc, char const *argv[]) {
                 auto frame = uint24_be_to_uint32(tag.timestamp);
 
                 if (frame > current) {
-                    auto sleep = frame - current - 100;
-                    if (sleep <= 0) {
-                        sleep = frame - current;
-                    }
-
-                    this_thread::sleep_for(milliseconds(sleep));
+                    this_thread::sleep_for(milliseconds(frame - current));
                 }
 
                 if (RTMP_Write(rtmp, buffer, size) <= 0) {
                     LOG_CRIT << "Unable to write bytes to server";
                     break;
-                }
-
-                // Handle RTMP ping and other stuff
-                int result = select(RTMP_Socket(rtmp) + 1, &sockset, NULL, NULL, &timeout);
-
-                if (result == 1 && FD_ISSET(RTMP_Socket(rtmp), &sockset)) {
-                    RTMP_ReadPacket(rtmp, &rtmpPacket);
-
-                    if (!RTMPPacket_IsReady(&rtmpPacket)) {
-                        RTMP_ClientPacket(rtmp, &rtmpPacket);
-                        RTMPPacket_Free(&rtmpPacket);
-                    }
                 }
             }
 
