@@ -3,6 +3,7 @@
         "fstream": "cpp",
         "typeinfo": "cpp",
         "iosfwd": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "filesystem": "cpp"
     }
 }

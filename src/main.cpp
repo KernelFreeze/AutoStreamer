@@ -1,4 +1,4 @@
-#include <filesystem>
+#include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
 #include <librtmp/rtmp.h>
@@ -9,7 +9,7 @@
 #include "INIReader.h"
 #include "flv/flv.h"
 
-namespace fs = std::filesystem;
+namespace fs = std::experimental::filesystem;
 using namespace std;
 
 #define BUFFER_SIZE 10000000
