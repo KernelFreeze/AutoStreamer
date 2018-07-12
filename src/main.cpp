@@ -50,6 +50,14 @@ void writeConfig() {
 }
 
 int main(int argc, char const *argv[]) {
+    if (!fs::is_directory("log") || !fs::exists("log")) {
+        fs::create_directory("log");
+    }
+
+    if (!fs::is_directory("videos") || !fs::exists("videos")) {
+        fs::create_directory("videos");
+    }
+
     nanolog::initialize(nanolog::GuaranteedLogger(), "log/", "stream", 1);
 
     LOG_INFO << "Starting GOTH streamer";
