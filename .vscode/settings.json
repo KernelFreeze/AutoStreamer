@@ -4,6 +4,9 @@
         "typeinfo": "cpp",
         "iosfwd": "cpp",
         "*.tcc": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "chrono": "cpp",
+        "type_traits": "cpp",
+        "bitset": "cpp"
     }
 }

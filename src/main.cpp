@@ -1,8 +1,10 @@
+#include <chrono>
 #include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
 #include <librtmp/rtmp.h>
 #include <string>
+#include <thread>
 
 #include "nanolog.h"
 
@@ -10,7 +12,9 @@
 #include "flv/flv.h"
 
 namespace fs = std::experimental::filesystem;
+
 using namespace std;
+using namespace std::chrono;
 
 #define BUFFER_SIZE 10000000
 #define CONFIG "config.ini"
@@ -19,6 +23,10 @@ using namespace std;
 inline bool exists(const char *fileName) {
     ifstream infile(fileName);
     return infile.good();
+}
+
+inline auto now() {
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 void writeConfig() {
@@ -116,6 +124,8 @@ int main(int argc, char const *argv[]) {
         auto buffer = new char[BUFFER_SIZE];
         flv_tag tag;
 
+        auto started = now();
+
         // Decode FLV data
         while (flv_read_tag(flvin, &tag) != FLV_ERROR_EOF) {
             // copy tag header
@@ -133,6 +143,14 @@ int main(int argc, char const *argv[]) {
 
             // write the packet
             int size = FLV_TAG_SIZE + data_size + sizeof(uint32);
+
+            // Wait before sending new frames
+            auto current = now() - started;
+            auto frame = uint24_be_to_uint32(tag.timestamp);
+
+            if (frame > current) {
+                this_thread::sleep_for(milliseconds(frame - current));
+            }
 
             if (RTMP_Write(rtmp, buffer, size) <= 0) {
                 LOG_CRIT << "Unable to write bytes to server";
