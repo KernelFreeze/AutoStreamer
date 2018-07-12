@@ -55,7 +55,8 @@ int main(int argc, char const *argv[]) {
 
     INIReader reader(CONFIG);
 
-    string rtmp_url = reader.Get("stream", "url", "rtmp://ingest-par.mixer.com:1935/beam/");
+    string rtmp_url = reader.Get("stream", "url", "rtmp://ingest-par.mixer.com:1935/beam");
+    rtmp_url.append("/");
     rtmp_url.append(reader.Get("stream", "token", "UNKOWN"));
     rtmp_url.append(" live=1");
 
