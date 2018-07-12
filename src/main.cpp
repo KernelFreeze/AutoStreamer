@@ -109,7 +109,11 @@ int main(int argc, char const *argv[]) {
     FD_ZERO(&sockset);
     FD_SET(RTMP_Socket(rtmp), &sockset);
 
-    while (reader.GetBoolean("stream", "forever", false)) {
+    auto firstRun = true;
+
+    while (firstRun || reader.GetBoolean("stream", "forever", false)) {
+        firstRun = false;
+
         for (auto &file : fs::directory_iterator(VIDEO_PATH)) {
             auto input_file = file.path().c_str();
 
