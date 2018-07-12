@@ -1,6 +1,6 @@
 --  ugly hack to use clang
-premake.gcc.cc  = 'clang'
-premake.gcc.cxx = 'clang++'
+premake.gcc.cc  = 'clang-6.0'
+premake.gcc.cxx = 'clang-6.0'
 
 solution "GOTH"
     configurations { "Debug", "Release" }
