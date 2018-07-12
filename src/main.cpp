@@ -59,7 +59,6 @@ int main(int argc, char const *argv[]) {
     rtmp_url.append(" live=1");
     rtmp_url.append(" token=");
     rtmp_url.append(reader.Get("stream", "token", "UNKOWN"));
-    rtmp_url.append(" timeout=20");
 
     auto rtmp = RTMP_Alloc();
 
@@ -84,38 +83,44 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
+    fd_set sockset;
+    RTMPPacket rtmpPacket;
+    struct timeval timeout = {0, 0};
+
+    FD_ZERO(&sockset);
+    FD_SET(RTMP_Socket(rtmp), &sockset);
+
     for (auto &file : fs::directory_iterator(VIDEO_PATH)) {
         auto input_file = file.path().c_str();
+
+        LOG_INFO << "Now playing " << file.path();
 
         // Load FLV file
         auto flvin = flv_open(input_file);
 
         if (!flvin) {
             LOG_CRIT << "Unable to open " << input_file;
-            RTMP_Free(rtmp);
-            return 1;
+            continue;
         }
 
         flv_header header;
         int res = flv_read_header(flvin, &header);
         if (res == FLV_ERROR_NO_FLV || res == FLV_ERROR_EOF) {
-            LOG_CRIT << "Input file is not an FLV video";
-            RTMP_Free(rtmp);
+            LOG_CRIT << "File is not an FLV video";
             flv_close(flvin);
-            return 1;
+            continue;
         }
 
         auto buffer = new char[BUFFER_SIZE];
+        flv_tag tag;
 
         // Decode FLV data
-
-        flv_tag tag;
         while (flv_read_tag(flvin, &tag) != FLV_ERROR_EOF) {
             // copy tag header
-            flv_copy_tag(buffer, &tag, FLV_TAG_SIZE);
+            flv_copy_tag(buffer, &tag, BUFFER_SIZE);
 
             // copy tag body
-            size_t data_size =
+            auto data_size =
                 flv_read_tag_body(flvin, buffer + FLV_TAG_SIZE, BUFFER_SIZE - FLV_TAG_SIZE);
 
             // copy previous tag size
@@ -131,12 +136,25 @@ int main(int argc, char const *argv[]) {
                 LOG_CRIT << "Unable to write bytes to server";
                 break;
             }
+
+            // Handle RTMP ping and other stuff
+            int result = select(RTMP_Socket(rtmp) + 1, &sockset, NULL, NULL, &timeout);
+
+            if (result == 1 && FD_ISSET(RTMP_Socket(rtmp), &sockset)) {
+                RTMP_ReadPacket(rtmp, &rtmpPacket);
+
+                if (!RTMPPacket_IsReady(&rtmpPacket)) {
+                    RTMP_ClientPacket(rtmp, &rtmpPacket);
+                    RTMPPacket_Free(&rtmpPacket);
+                }
+            }
         }
 
         flv_close(flvin);
         delete[] buffer;
     }
 
+    LOG_INFO << "Done! All files were broadcasted.";
     RTMP_Free(rtmp);
     return 0;
 }
