@@ -163,7 +163,12 @@ int main(int argc, char const *argv[]) {
                 auto frame = uint24_be_to_uint32(tag.timestamp);
 
                 if (frame > current) {
-                    this_thread::sleep_for(milliseconds(frame - current));
+                    auto sleep = frame - current - 100;
+                    if (sleep <= 0) {
+                        sleep = frame - current;
+                    }
+
+                    this_thread::sleep_for(milliseconds(sleep));
                 }
 
                 if (RTMP_Write(rtmp, buffer, size) <= 0) {
