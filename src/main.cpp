@@ -61,7 +61,7 @@ int main(int argc, char const *argv[]) {
     rtmp_url.append(reader.Get("stream", "token", "UNKOWN"));
     rtmp_url.append(" timeout=20");
 
-    RTMP *rtmp = RTMP_Alloc();
+    auto rtmp = RTMP_Alloc();
 
     if (!rtmp) {
         LOG_CRIT << "Unable to create rtmp object";

@@ -1,6 +1,6 @@
 /bin
 /obj
-/logs
+/log/*
 .vagrant
 Makefile
 *.make
