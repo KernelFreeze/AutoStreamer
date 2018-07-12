@@ -43,9 +43,7 @@ void writeConfig() {
            << "token=MIXERTOKEN" << endl
            << "forever=false" << endl
            << "url=rtmp://ingest-par.mixer.com:1935/beam"
-           << " ; https://watchbeam.zendesk.com/hc/en-us/articles/"
-              "209659883-How-to-change-your-Ingest-Server"
-           << endl;
+           << " ; https://goo.gl/8MtC4v" << endl;
     config.close();
 }
 
