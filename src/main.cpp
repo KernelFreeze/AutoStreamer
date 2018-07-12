@@ -74,6 +74,7 @@ int main(int argc, char const *argv[]) {
     rtmp_url.append("/");
     rtmp_url.append(reader.Get("stream", "token", "UNKOWN"));
     rtmp_url.append(" live=1");
+    rtmp_url.append(" buffer=3000");
 
     LOG_INFO << "Using URL " << rtmp_url;
 
